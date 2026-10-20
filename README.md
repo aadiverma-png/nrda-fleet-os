@@ -3,15 +3,10 @@
 **Edge-AI decentralised fleet coordination for autonomous mobile robots in smart warehouses.**
 
 <p align="center">
-  <img src="docs/images/rviz.png" alt="RViz showing the 20-robot fleet, its lanes and space-time claims" width="900">
+  <img src="docs/images/rviz.png" alt="RViz showing the 20-robot fleet, its lanes and space-time claims" width="880">
   <br>
   <em>RViz: the full fleet mid-run &mdash; occupancy map, lane network, per-robot routes, space-time claims and live lidar scans.</em>
 </p>
-
-| Gazebo Harmonic | Web operator console |
-|---|---|
-| <img src="docs/images/gazebo.png" alt="The NRDS warehouse in Gazebo Harmonic" width="430"> | <img src="docs/images/console.png" alt="The NRDA fleet console showing KPIs and a deadlock alert" width="430"> |
-| The NRDS warehouse the fleet drives: inbound docks, conveyor lines and the marked lane network. | Live KPIs, the fleet map and the incident feed &mdash; here flagging a closed wait loop and a three-robot deadlock risk. |
 
 Twenty AMR-01 tote transporters (`AMR_1` … `AMR_20`) work the NRDS warehouse in Gazebo Harmonic and RViz.
 - Each robot runs its own edge agent, and there is no central planner.
@@ -21,6 +16,20 @@ Twenty AMR-01 tote transporters (`AMR_1` … `AMR_20`) work the NRDS warehouse i
 Operators watch the fleet, count collisions and release tasks from a web console.
 
 The coordination algorithm is **NRDA-FA**: a five-layer onboard stack covering task and health, allocation, routing with space-time reservation, local coordination, and motion with safety. See [`docs/FINAL_ALGORITHM.md`](docs/FINAL_ALGORITHM.md) for the specification and [`docs/FINAL_AUDIT.md`](docs/FINAL_AUDIT.md) for every algorithm with its published source and mathematics.
+
+## The simulation
+
+<p align="center">
+  <img src="docs/images/gazebo.png" alt="The NRDS warehouse in Gazebo Harmonic" width="820">
+  <br>
+  <em>Gazebo Harmonic &mdash; the warehouse the fleet actually drives: inbound docks, conveyor lines, racking and the marked lane network.</em>
+</p>
+
+<p align="center">
+  <img src="docs/images/console.png" alt="The fleet console showing live KPIs and two deadlock incidents" width="660">
+  <br>
+  <em>The web operator console &mdash; live KPIs, the fleet map and the incident feed, here holding a closed wait loop at 100 % and a three-robot deadlock risk at 94 %.</em>
+</p>
 
 ## Quick start
 
