@@ -3,10 +3,15 @@
 **Edge-AI decentralised fleet coordination for autonomous mobile robots in smart warehouses.**
 
 <p align="center">
-  <img src="docs/images/simulation.png" alt="The NRDS warehouse running in Gazebo Harmonic" width="760">
+  <img src="docs/images/rviz.png" alt="RViz showing the 20-robot fleet, its lanes and space-time claims" width="900">
   <br>
-  <em>The NRDS warehouse in Gazebo Harmonic &mdash; inbound docks, conveyor lines and the marked lane network the fleet reserves space-time on.</em>
+  <em>RViz: the full fleet mid-run &mdash; occupancy map, lane network, per-robot routes, space-time claims and live lidar scans.</em>
 </p>
+
+| Gazebo Harmonic | Web operator console |
+|---|---|
+| <img src="docs/images/gazebo.png" alt="The NRDS warehouse in Gazebo Harmonic" width="430"> | <img src="docs/images/console.png" alt="The NRDA fleet console showing KPIs and a deadlock alert" width="430"> |
+| The NRDS warehouse the fleet drives: inbound docks, conveyor lines and the marked lane network. | Live KPIs, the fleet map and the incident feed &mdash; here flagging a closed wait loop and a three-robot deadlock risk. |
 
 Twenty AMR-01 tote transporters (`AMR_1` … `AMR_20`) work the NRDS warehouse in Gazebo Harmonic and RViz.
 - Each robot runs its own edge agent, and there is no central planner.
