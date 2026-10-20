@@ -1,0 +1,19 @@
+# Safety case (simulation-grade)
+
+This document maps each hazard to the layers that mitigate it and to the evidence. It targets the structure of ISO 3691-4 (driverless industrial trucks), but it is **not** a certification claim. The system runs in simulation.
+
+| Hazard | Mitigations (outermost first) | Evidence |
+|---|---|---|
+| Robot–robot collision in a lane | L3 space-time claims with τ = 1.0 s and a 0.35 m space margin. ORCA-DD speed scaling for same-lane neighbours. L1 probabilistic risk brake. L1 lidar protective field and hard stop | `test_two_replicas_agree_on_the_winner`, `test_three_robots_deliver_without_collisions`, benchmark collisions |
+| Head-on standoff / gridlock in narrow single-file corridors (e.g. Corridor `VE`, $w < 1.05\text{ m}$) | Structural one-way lane enforcement (`is_lane_enabled` on `VE/A`); legal hold prohibition inside corridors (`_is_legal_hold`); DRP single-file standoff recognition assigning opposing loser to dynamic reroute (`single_file_standoff`) | `test_single_file_corridor_deadlock_reroutes_opposing`, `test_classify_opposing_lanes_with_follower`, 1,892 station pairs reachability test, live simulation stress runs (`scenario:=busy`) |
+| Collision at intersections | Claims cover every lane cell the body sweeps, including turns in place. Robots never stop inside a crossing core. The rotation guard stops a turn if a return is inside the swept body | `test_scheduler_waits_at_a_legal_hold_point`, `test_cover_uses_swept_lane_bands` |
+| Collision with racks or walls | Lanes and turns validated against every collision box with the real footprint (5 cm and 3 cm margins). Station manoeuvres validated by sweep. Lidar safety stop | `test_lanes_are_clear_of_racks_with_margin`, `test_spawn_and_station_poses_clear_of_obstacles` |
+| Unmapped obstacle (dropped pallet, person) | Lidar clusters that are not in the static map and not a known peer become fleet-wide obstacles (claims blocked). L2 bypass, re-route or hold. Lidar hard stop at 0.28 m | `test_lidar_obstacle_triggers_bypass` |
+| Oncoming traffic during a bypass | The visison planner claims the oncoming-lane window atomically. The window is re-checked every tick until the lane change starts. Oncoming robots schedule around the claim | visison `test_controller`, `test_planner` |
+| Robot failure (stops, silent) | Heartbeat timeout of 3 s. Its claims are dropped except the cells its body covers, which stay blocked. Its tasks are re-auctioned. Others bypass or re-route | `test_silent_peer_keeps_only_its_body_blocked`, benchmark S5 |
+| Communication loss | Claims are only used once confirmed while a peer is within race distance. Stale peers are handled as static. Lidar layers are independent of communication | Benchmark S4 |
+| Two writers commanding one robot | Single-writer architecture (`MotionArbiter`). Start-up check for other `/AMR_i/cmd_vel` publishers. Nav2, RMF and the old nodes were removed from the workspace | `test_single_cmd_writer_operator_estop_overrides_everything`, `edge_agent_node._check_single_writer` |
+| Operator needs to stop the fleet | Latched `/fleet/control` e-stop has OPERATOR priority in every arbiter and survives gateway loss. Per-robot pause and e-stop | `test_single_cmd_writer_operator_estop_overrides_everything` |
+| Remote actuation or spoofed directives | Directives never actuate: the receiving arbiter decides. Optional API token. SROS2 recommended for deployment | `test_directive_does_not_actuate_other_robots` |
+
+**Independent monitoring.** `safety_monitor` detects collisions from ground truth (footprint overlap) and physical contacts (chassis sensor). It records near misses (gap below 10 cm while closing) and stores every event in `~/.nrda/events.db`. By default it pauses the robots involved in a collision (`on_collision:=stop_pair`).

@@ -1,0 +1,114 @@
+<?xml version="1.0"?>
+<!--
+  AMR-01 tote transporter. Include once per robot with a unique <name> (amr_01 ... amr_10).
+  Gazebo scopes every topic by model name, e.g.
+    /model/amr_03/cmd_vel   /model/amr_03/odometry   /model/amr_03/tf
+    /world/nrds_warehouse/model/amr_03/link/base_link/sensor/lidar_front_right/scan
+  config/bridge.yaml maps these to /amr_03/... ROS 2 topics.
+-->
+<sdf version="1.9">
+  <model name="amr_01">
+    <link name="base_link">
+      <inertial><pose>0 0 0.2 0 0 0</pose><mass>60</mass><inertia><ixx>3.49</ixx><iyy>7.65</iyy><izz>10.24</izz><ixy>0</ixy><ixz>0</ixz><iyz>0</iyz></inertia></inertial>
+      <collision name="chassis"><pose>0 0 0.215 0 0 0</pose><geometry><box><size>1.2 0.78 0.33</size></box></geometry></collision>
+      <collision name="caster_fl"><pose>0.44 0.25 0.025 0 0 0</pose><geometry><sphere><radius>0.025</radius></sphere></geometry><surface><friction><ode><mu>0.0</mu><mu2>0.0</mu2></ode><bullet><friction>0</friction><friction2>0</friction2></bullet></friction></surface></collision>
+      <collision name="caster_fr"><pose>0.44 -0.25 0.025 0 0 0</pose><geometry><sphere><radius>0.025</radius></sphere></geometry><surface><friction><ode><mu>0.0</mu><mu2>0.0</mu2></ode><bullet><friction>0</friction><friction2>0</friction2></bullet></friction></surface></collision>
+      <collision name="caster_rl"><pose>-0.44 0.25 0.025 0 0 0</pose><geometry><sphere><radius>0.025</radius></sphere></geometry><surface><friction><ode><mu>0.0</mu><mu2>0.0</mu2></ode><bullet><friction>0</friction><friction2>0</friction2></bullet></friction></surface></collision>
+      <collision name="caster_rr"><pose>-0.44 -0.25 0.025 0 0 0</pose><geometry><sphere><radius>0.025</radius></sphere></geometry><surface><friction><ode><mu>0.0</mu><mu2>0.0</mu2></ode><bullet><friction>0</friction><friction2>0</friction2></bullet></friction></surface></collision>
+      <visual name="bumper"><pose>0 0 0.085 0 0 0</pose><geometry><box><size>1.2 0.78 0.1</size></box></geometry><material><ambient>0.17 0.18 0.2 1</ambient><diffuse>0.17 0.18 0.2 1</diffuse><specular>0.2 0.2 0.2 1</specular></material></visual>
+      <visual name="body_shell"><pose>0 0 0.2275 0 0 0</pose><geometry><box><size>1.18 0.76 0.205</size></box></geometry><material><ambient>0.35 0.5 0.65 1</ambient><diffuse>0.35 0.5 0.65 1</diffuse><specular>0.2 0.2 0.2 1</specular></material></visual>
+      <visual name="deck"><pose>0 0 0.336 0 0 0</pose><geometry><box><size>1.12 0.68 0.006</size></box></geometry><material><ambient>0.17 0.18 0.2 1</ambient><diffuse>0.17 0.18 0.2 1</diffuse><specular>0.2 0.2 0.2 1</specular></material></visual>
+      <visual name="rail_left"><pose>0 0.36 0.365 0 0 0</pose><geometry><box><size>1.14 0.03 0.07</size></box></geometry><material><ambient>0.89 0.9 0.91 1</ambient><diffuse>0.89 0.9 0.91 1</diffuse><specular>0.2 0.2 0.2 1</specular></material></visual>
+      <visual name="rail_right"><pose>0 -0.36 0.365 0 0 0</pose><geometry><box><size>1.14 0.03 0.07</size></box></geometry><material><ambient>0.89 0.9 0.91 1</ambient><diffuse>0.89 0.9 0.91 1</diffuse><specular>0.2 0.2 0.2 1</specular></material></visual>
+      <visual name="rollers"><pose>0 0 0.36 0 0 0</pose><geometry><box><size>1 0.68 0.044</size></box></geometry><material><ambient>0.72 0.74 0.76 1</ambient><diffuse>0.72 0.74 0.76 1</diffuse><specular>0.2 0.2 0.2 1</specular></material></visual>
+      <visual name="lidar_front_right_body"><pose>0.565 -0.355 0.11 0 0 0</pose><geometry><cylinder><radius>0.06</radius><length>0.1</length></cylinder></geometry><material><ambient>0.17 0.18 0.2 1</ambient><diffuse>0.17 0.18 0.2 1</diffuse><specular>0.2 0.2 0.2 1</specular></material></visual>
+      <visual name="lidar_rear_left_body"><pose>-0.565 0.355 0.11 0 0 0</pose><geometry><cylinder><radius>0.06</radius><length>0.1</length></cylinder></geometry><material><ambient>0.17 0.18 0.2 1</ambient><diffuse>0.17 0.18 0.2 1</diffuse><specular>0.2 0.2 0.2 1</specular></material></visual>
+      <visual name="antenna_left"><pose>-0.52 0.36 0.52 0 0 0</pose><geometry><cylinder><radius>0.004</radius><length>0.15</length></cylinder></geometry><material><ambient>0.08 0.08 0.09 1</ambient><diffuse>0.08 0.08 0.09 1</diffuse><specular>0.2 0.2 0.2 1</specular></material></visual>
+      <visual name="antenna_right"><pose>-0.52 -0.36 0.52 0 0 0</pose><geometry><cylinder><radius>0.004</radius><length>0.15</length></cylinder></geometry><material><ambient>0.08 0.08 0.09 1</ambient><diffuse>0.08 0.08 0.09 1</diffuse><specular>0.2 0.2 0.2 1</specular></material></visual>
+      <visual name="stereo_camera"><pose>0.59 0 0.255 0 0 0</pose><geometry><box><size>0.02 0.24 0.045</size></box></geometry><material><ambient>0.17 0.18 0.2 1</ambient><diffuse>0.17 0.18 0.2 1</diffuse><specular>0.2 0.2 0.2 1</specular></material></visual>
+      <visual name="estop"><pose>-0.6 0 0.255 0 1.5708 0</pose><geometry><cylinder><radius>0.028</radius><length>0.03</length></cylinder></geometry><material><ambient>0.77 0.19 0.16 1</ambient><diffuse>0.77 0.19 0.16 1</diffuse><specular>0.2 0.2 0.2 1</specular></material></visual>
+      <sensor name="lidar_front_right" type="gpu_lidar">
+        <pose>0.565 -0.355 0.1225 0 0 -0.7854</pose>
+        <update_rate>15</update_rate>
+        <always_on>true</always_on>
+        <visualize>false</visualize>
+        <lidar>
+          <scan><horizontal><samples>541</samples><resolution>1</resolution><min_angle>-2.35619</min_angle><max_angle>2.35619</max_angle></horizontal>
+            <vertical><samples>1</samples><resolution>1</resolution><min_angle>0</min_angle><max_angle>0</max_angle></vertical></scan>
+          <range><min>0.05</min><max>25.0</max><resolution>0.01</resolution></range>
+          <noise><type>gaussian</type><mean>0</mean><stddev>0.01</stddev></noise>
+        </lidar>
+      </sensor>
+      <sensor name="lidar_rear_left" type="gpu_lidar">
+        <pose>-0.565 0.355 0.1225 0 0 2.3562</pose>
+        <update_rate>15</update_rate>
+        <always_on>true</always_on>
+        <visualize>false</visualize>
+        <lidar>
+          <scan><horizontal><samples>541</samples><resolution>1</resolution><min_angle>-2.35619</min_angle><max_angle>2.35619</max_angle></horizontal>
+            <vertical><samples>1</samples><resolution>1</resolution><min_angle>0</min_angle><max_angle>0</max_angle></vertical></scan>
+          <range><min>0.05</min><max>25.0</max><resolution>0.01</resolution></range>
+          <noise><type>gaussian</type><mean>0</mean><stddev>0.01</stddev></noise>
+        </lidar>
+      </sensor>
+      <sensor name="front_depth" type="rgbd_camera">
+        <pose>0.61 0 0.255 0 0 0</pose>
+        <update_rate>15</update_rate>
+        <always_on>true</always_on>
+        <camera>
+          <horizontal_fov>1.518</horizontal_fov>
+          <image><width>640</width><height>480</height><format>R8G8B8</format></image>
+          <clip><near>0.2</near><far>10.0</far></clip>
+          <depth_camera><clip><near>0.2</near><far>10.0</far></clip></depth_camera>
+        </camera>
+      </sensor>
+      <sensor name="upward_camera" type="camera">
+        <pose>0.47 -0.35 0.45 0 -1.5708 0</pose>
+        <update_rate>10</update_rate>
+        <always_on>true</always_on>
+        <camera>
+          <horizontal_fov>1.2</horizontal_fov>
+          <image><width>640</width><height>480</height><format>R8G8B8</format></image>
+          <clip><near>0.1</near><far>15.0</far></clip>
+        </camera>
+      </sensor>
+      <sensor name="imu" type="imu">
+        <pose>0 0 0.2 0 0 0</pose>
+        <update_rate>100</update_rate>
+        <always_on>true</always_on>
+      </sensor>
+    </link>
+    <link name="left_wheel">
+      <pose>0 0.31 0.075 -1.5708 0 0</pose>
+      <inertial><mass>2.0</mass><inertia><ixx>0.0033</ixx><iyy>0.0033</iyy><izz>0.0056</izz><ixy>0</ixy><ixz>0</ixz><iyz>0</iyz></inertia></inertial>
+      <collision name="collision"><geometry><cylinder><radius>0.075</radius><length>0.05</length></cylinder></geometry><surface><friction><ode><mu>1.0</mu><mu2>1.0</mu2></ode></friction></surface></collision>
+      <visual name="visual"><geometry><cylinder><radius>0.075</radius><length>0.05</length></cylinder></geometry><material><ambient>0.08 0.08 0.09 1</ambient><diffuse>0.08 0.08 0.09 1</diffuse><specular>0.2 0.2 0.2 1</specular></material></visual>
+    </link>
+    <joint name="left_wheel_joint" type="revolute">
+      <parent>base_link</parent><child>left_wheel</child>
+      <axis><xyz>0 0 1</xyz><limit><lower>-1e16</lower><upper>1e16</upper></limit></axis>
+    </joint>
+    <link name="right_wheel">
+      <pose>0 -0.31 0.075 -1.5708 0 0</pose>
+      <inertial><mass>2.0</mass><inertia><ixx>0.0033</ixx><iyy>0.0033</iyy><izz>0.0056</izz><ixy>0</ixy><ixz>0</ixz><iyz>0</iyz></inertia></inertial>
+      <collision name="collision"><geometry><cylinder><radius>0.075</radius><length>0.05</length></cylinder></geometry><surface><friction><ode><mu>1.0</mu><mu2>1.0</mu2></ode></friction></surface></collision>
+      <visual name="visual"><geometry><cylinder><radius>0.075</radius><length>0.05</length></cylinder></geometry><material><ambient>0.08 0.08 0.09 1</ambient><diffuse>0.08 0.08 0.09 1</diffuse><specular>0.2 0.2 0.2 1</specular></material></visual>
+    </link>
+    <joint name="right_wheel_joint" type="revolute">
+      <parent>base_link</parent><child>right_wheel</child>
+      <axis><xyz>0 0 1</xyz><limit><lower>-1e16</lower><upper>1e16</upper></limit></axis>
+    </joint>
+    <plugin filename="gz-sim-diff-drive-system" name="gz::sim::systems::DiffDrive">
+      <left_joint>left_wheel_joint</left_joint>
+      <right_joint>right_wheel_joint</right_joint>
+      <wheel_separation>0.62</wheel_separation>
+      <wheel_radius>0.075</wheel_radius>
+      <odom_publish_frequency>50</odom_publish_frequency>
+      <max_linear_velocity>2.2</max_linear_velocity>
+      <max_angular_velocity>1.5</max_angular_velocity>
+      <max_linear_acceleration>1.6</max_linear_acceleration>
+      <max_angular_acceleration>2.0</max_angular_acceleration>
+    </plugin>
+    <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher"/>
+  </model>
+</sdf>

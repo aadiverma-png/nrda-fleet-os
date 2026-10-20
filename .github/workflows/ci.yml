@@ -1,0 +1,22 @@
+name: ci
+on: [push, pull_request]
+jobs:
+  core:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: pip install numpy pyyaml pytest matplotlib
+      - run: cd core && python -m pytest -q
+  ros:
+    runs-on: ubuntu-24.04
+    container: ros:jazzy
+    steps:
+      - uses: actions/checkout@v4
+      - run: apt-get update && apt-get install -y ros-jazzy-ros-gz ros-jazzy-nav2-map-server ros-jazzy-nav2-lifecycle-manager python3-numpy python3-yaml
+      - shell: bash
+        run: |
+          source /opt/ros/jazzy/setup.bash
+          cd ros2_ws && colcon build --base-paths src ../core
+      - run: python3 benchmarks/run_scenarios.py --scenarios S1_nominal --seeds 1 --no-lidar --workers 1

@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>nrda_msgs</name>
+  <version>1.0.0</version>
+  <description>NRDA fleet peer-bus interfaces: robot state, space-time claims, CBBA bids, tasks, alerts, operator control, safety events</description>
+  <maintainer email="vaadi9902@gmail.com">NRDA</maintainer>
+  <license>Proprietary</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>rosidl_default_generators</buildtool_depend>
+  <exec_depend>rosidl_default_runtime</exec_depend>
+  <member_of_group>rosidl_interface_packages</member_of_group>
+  <export><build_type>ament_cmake</build_type></export>
+</package>

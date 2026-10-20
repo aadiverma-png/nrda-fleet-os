@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>nrda_core</name>
+  <version>1.0.0</version>
+  <description>NRDA-FA core: ROS-free fleet coordination (visison + nrda_fleet)</description>
+  <maintainer email="vaadi9902@gmail.com">NRDA</maintainer>
+  <license>Proprietary</license>
+  <exec_depend>python3-numpy</exec_depend>
+  <exec_depend>python3-yaml</exec_depend>
+  <test_depend>python3-pytest</test_depend>
+  <export><build_type>ament_python</build_type></export>
+</package>

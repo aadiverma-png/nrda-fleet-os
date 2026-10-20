@@ -1,0 +1,21 @@
+# Traffic-plan additions to the automatically derived lane network (core/nrda_fleet/lane_graph.py).
+# The builder still validates every lane stretch and turn against the collision boxes.
+#
+# East bay: a second service corridor VE2 behind the charging / parking rows, and the cross-aisles
+# H2-H4 extended to it. Robots can loop (VE down, VE2 up) instead of queueing in one corridor, and
+# the outbound drops become short spurs off VE2.
+#
+# Drive-through service lanes (no dead-end docks: a dead end needs the same floor for the way in and the way out,
+# which locked arriving and leaving robots face to face at the crossing corners).
+#  * VP: packing lane beside the pack desks. In from corridor HB (or from H2 down lane B, which is the queue),
+#    stop in lane A next to the tote port, out at H2. H1 is NOT extended to it, so VP has no crossing between
+#    HB and H2 and holds the queue (1 robot served + 4 queued per dock).
+#  * VE2 runs down to HB: its northbound lane A is the queue for the outbound drops, which are stops in that lane.
+extra_lines:
+  VE2: {orient: V, center: 31.0, lo: -24.02, hi: 7.8, w: 1.2, kind: corridor}
+  VP: {orient: V, center: 26.1, lo: -24.02, hi: -8.2, w: 1.2, kind: corridor}
+extend:
+  HB: {hi: 32.2}
+  H2: {hi: 32.2}
+  H3: {hi: 32.2}
+  H4: {hi: 32.2}

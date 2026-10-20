@@ -1,0 +1,14 @@
+ros2_ws/build/
+ros2_ws/install/
+ros2_ws/log/
+__pycache__/
+.pytest_cache/
+*.pyc
+*.pyo
+*.pyd
+*.swp
+*~
+benchmarks/results/
+.vscode/
+.claude/
+.DS_Store

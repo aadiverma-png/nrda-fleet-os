@@ -1,0 +1,50 @@
+# Task locations for fleet logic (map frame, metres, radians)
+# picker_zones: robot drives to amr_stop, the zone's picker loads the tote, robot continues to packing
+picker_zones:
+  P01: {type: pallet, bounds: {x_min: -27, x_max: -14.2, y_min: 6.6, y_max: 21.4}, picker_stand: {x: -22.95, y: 12.75, yaw: 1.5708}, amr_stop: {x: -22.95, y: 14, yaw: 0}}
+  P02: {type: pallet, bounds: {x_min: -14.2, x_max: -3.7, y_min: 6.6, y_max: 21.4}, picker_stand: {x: -8.95, y: 12.75, yaw: 1.5708}, amr_stop: {x: -8.95, y: 14, yaw: 0}}
+  P03: {type: pallet, bounds: {x_min: -27, x_max: -14.2, y_min: -9.4, y_max: 6.6}, picker_stand: {x: -22.95, y: -3.25, yaw: 1.5708}, amr_stop: {x: -22.95, y: -2, yaw: 0}}
+  P04: {type: pallet, bounds: {x_min: -14.2, x_max: -3.7, y_min: -9.4, y_max: 6.6}, picker_stand: {x: -8.95, y: -3.25, yaw: 1.5708}, amr_stop: {x: -8.95, y: -2, yaw: 0}}
+  P05: {type: pallet, bounds: {x_min: -27, x_max: -14.2, y_min: -21.5, y_max: -9.4}, picker_stand: {x: -22.95, y: -19.25, yaw: 1.5708}, amr_stop: {x: -22.95, y: -18, yaw: 0}}
+  P06: {type: pallet, bounds: {x_min: -14.2, x_max: -3.7, y_min: -21.5, y_max: -9.4}, picker_stand: {x: -8.95, y: -19.25, yaw: 1.5708}, amr_stop: {x: -8.95, y: -18, yaw: 0}}
+  P07: {type: tote, bounds: {x_min: -3.7, x_max: 3.3, y_min: -1.4, y_max: 21.4}, picker_stand: {x: 1.55, y: 12.75, yaw: 1.5708}, amr_stop: {x: 1.55, y: 14, yaw: 0}}
+  P08: {type: tote, bounds: {x_min: 3.3, x_max: 10.3, y_min: -1.4, y_max: 21.4}, picker_stand: {x: 5.05, y: 12.75, yaw: 1.5708}, amr_stop: {x: 5.05, y: 14, yaw: 0}}
+  P09: {type: tote, bounds: {x_min: 10.3, x_max: 17.3, y_min: -1.4, y_max: 21.4}, picker_stand: {x: 15.55, y: 12.75, yaw: 1.5708}, amr_stop: {x: 15.55, y: 14, yaw: 0}}
+  P10: {type: tote, bounds: {x_min: 17.3, x_max: 23.1, y_min: -1.4, y_max: 21.4}, picker_stand: {x: 22.55, y: 12.75, yaw: 1.5708}, amr_stop: {x: 22.55, y: 14, yaw: 0}}
+  P11: {type: tote, bounds: {x_min: -3.7, x_max: 3.3, y_min: -21.5, y_max: -1.4}, picker_stand: {x: 1.55, y: -11.25, yaw: 1.5708}, amr_stop: {x: 1.55, y: -10, yaw: 0}}
+  P12: {type: tote, bounds: {x_min: 3.3, x_max: 10.3, y_min: -21.5, y_max: -1.4}, picker_stand: {x: 5.05, y: -11.25, yaw: 1.5708}, amr_stop: {x: 5.05, y: -10, yaw: 0}}
+  P13: {type: tote, bounds: {x_min: 10.3, x_max: 17.3, y_min: -21.5, y_max: -1.4}, picker_stand: {x: 15.55, y: -11.25, yaw: 1.5708}, amr_stop: {x: 15.55, y: -10, yaw: 0}}
+  P14: {type: tote, bounds: {x_min: 17.3, x_max: 23.1, y_min: -21.5, y_max: -1.4}, picker_stand: {x: 22.55, y: -11.25, yaw: 1.5708}, amr_stop: {x: 22.55, y: -10, yaw: 0}}
+chargers:
+  # Rear-docking chargers: the robot's charging contacts face the tower.
+  # disabled: chargers built into the warehouse mesh that AMR-01 (1.20 x 0.78 m, diff drive) cannot dock at.
+  A1: {x: -30.93, y: -2.5, yaw: 0}
+  A2: {x: -30.93, y: -4.3, yaw: 0}
+  B1: {x: -16.88, y: -24.4, yaw: 0, disabled: "wall alcove 1.15 m deep: no docking path clears rack_130 and the south wall"}
+  B2: {x: -15.28, y: -24.4, yaw: 0, disabled: "wall alcove 1.15 m deep: no docking path clears rack_130 and the south wall"}
+  C1: {x: -1.95, y: 4.63, yaw: -1.5708, disabled: "behind charger C2's tower: the only approach runs through it"}
+  C2: {x: -1.95, y: 3.03, yaw: -1.5708}
+  D1: {x: 5.12, y: -24.4, yaw: 0, disabled: "wall alcove 1.15 m deep: no docking path clears rack_130/rack_131 and the south wall"}
+  D2: {x: 6.72, y: -24.4, yaw: 0, disabled: "wall alcove 1.15 m deep: no docking path clears rack_131 and the south wall"}
+  E1: {x: 27.63, y: 10.9, yaw: 3.1416}
+  E2: {x: 27.63, y: 9.5, yaw: 3.1416}
+  # south wall chargers: robot parked parallel to the wall, reversing onto the tower (clear of corridor HB)
+  S1: {x: -23.0, y: -24.5, yaw: 0.0, disabled: "showcase only (batteries do not drain); the 1.1 m wall strip is too tight to dock safely"}
+  S2: {x: -11.0, y: -24.5, yaw: 0.0, disabled: "showcase only (batteries do not drain); the 1.1 m wall strip is too tight to dock safely"}
+  S3: {x: -1.0, y: -24.5, yaw: 0.0, disabled: "showcase only (batteries do not drain); the 1.1 m wall strip is too tight to dock safely"}
+  S4: {x: 8.0, y: -24.5, yaw: 0.0, disabled: "showcase only (batteries do not drain); the 1.1 m wall strip is too tight to dock safely"}
+  S5: {x: 20.0, y: -24.5, yaw: 0.0, disabled: "showcase only (batteries do not drain); the 1.1 m wall strip is too tight to dock safely"}
+drop_points:
+  # drive-through stops in corridor VE2's northbound lane, beside the west end of each outbound conveyor
+  drop_1: {x: 31.6, y: 4.0, yaw: 1.5708}
+  drop_2: {x: 31.6, y: -4.4, yaw: 1.5708}
+  drop_3: {x: 31.6, y: -12.0, yaw: 1.5708}
+stations:
+  decant_pickup: {x: 24.9, y: 16, yaw: 0}
+  # drive-through stops in the packing lane VP (lane A, northbound), tote port on the robot's right
+  packing_induct_1: {x: 26.7, y: -14.8, yaw: 1.5708}
+  packing_induct_2: {x: 26.7, y: -17.0, yaw: 1.5708}
+  packing_induct_3: {x: 26.7, y: -19.2, yaw: 1.5708}
+  overflow_induct_1: {x: -28.8, y: 11.2, yaw: 3.1416}
+  overflow_induct_2: {x: -28.8, y: 6.35, yaw: 3.1416}
+  overflow_induct_3: {x: -28.8, y: 1.45, yaw: 3.1416}

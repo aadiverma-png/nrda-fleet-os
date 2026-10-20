@@ -1,0 +1,45 @@
+# NRDA fleet roster and sleeping bays (map frame = Gazebo world frame, metres, radians)
+#
+# Robot ids are AMR_1 ... AMR_20 (model type amr_01). Each robot spawns docked at a station:
+# 10 at chargers spread over the building, 10 in sleeping bays ("dog houses", models/nrda_parking_bay)
+# along the walls: REST_W1-5 on the west side (reverse in from corridor VW, nose east) and
+# REST_E1-5 on the east side between corridors VE and VE2 (reverse in from VE, nose west). Idle robots return to them.
+
+parking:
+  REST_W1: {x: -30.93, y: 18.0, yaw: 0.0, approach: reverse}
+  REST_W2: {x: -30.93, y: -8.0, yaw: 0.0, approach: reverse}
+  REST_W3: {x: -30.93, y: -11.0, yaw: 0.0, approach: reverse}
+  REST_W4: {x: -30.93, y: -14.0, yaw: 0.0, approach: reverse}
+  REST_W5: {x: -30.93, y: -19.0, yaw: 0.0, approach: reverse}
+  REST_W6: {x: -30.93, y: 0.0, yaw: 0.0, approach: reverse}
+  REST_W7: {x: -30.93, y: 3.0, yaw: 0.0, approach: reverse}
+  REST_W8: {x: -30.93, y: 4.8, yaw: 0.0, approach: reverse}
+  REST_W9: {x: -30.93, y: 8.0, yaw: 0.0, approach: reverse}
+  REST_W10: {x: -30.93, y: 13.0, yaw: 0.0, approach: reverse}
+  REST_E1: {x: 27.63, y: 4.9, yaw: 3.14159, approach: reverse}
+  REST_E2: {x: 27.63, y: 3.5, yaw: 3.14159, approach: reverse}
+  REST_E3: {x: 27.63, y: 2.1, yaw: 3.14159, approach: reverse}
+  REST_E4: {x: 27.63, y: -3.3, yaw: 3.14159, approach: reverse}
+  REST_E5: {x: 27.63, y: -4.5, yaw: 3.14159, approach: reverse}
+
+robots:
+  AMR_1: {spawn: charger_A1, battery: 1.0}
+  AMR_2: {spawn: REST_W1, battery: 1.0}
+  AMR_3: {spawn: charger_A2, battery: 1.0}
+  AMR_4: {spawn: REST_W2, battery: 1.0}
+  AMR_5: {spawn: charger_C2, battery: 1.0}
+  AMR_6: {spawn: REST_W3, battery: 1.0}
+  AMR_7: {spawn: charger_E1, battery: 1.0}
+  AMR_8: {spawn: REST_W4, battery: 1.0}
+  AMR_9: {spawn: charger_E2, battery: 1.0}
+  AMR_10: {spawn: REST_W5, battery: 1.0}
+  AMR_11: {spawn: REST_W6, battery: 1.0}
+  AMR_12: {spawn: REST_E1, battery: 1.0}
+  AMR_13: {spawn: REST_W7, battery: 1.0}
+  AMR_14: {spawn: REST_E2, battery: 1.0}
+  AMR_15: {spawn: REST_W8, battery: 1.0}
+  AMR_16: {spawn: REST_E3, battery: 1.0}
+  AMR_17: {spawn: REST_W9, battery: 1.0}
+  AMR_18: {spawn: REST_E4, battery: 1.0}
+  AMR_19: {spawn: REST_W10, battery: 1.0}
+  AMR_20: {spawn: REST_E5, battery: 1.0}

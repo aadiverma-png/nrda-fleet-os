@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!-- NRDA charging dock. Model origin = tower centre on the floor; the robot docks on the +x side, facing +x. -->
+<sdf version="1.9">
+  <model name="nrda_charger">
+    <static>true</static>
+    <link name="tower">
+      <collision name="tower_collision"><pose>0 0 0.22 0 0 0</pose><geometry><box><size>0.13 0.52 0.44</size></box></geometry></collision>
+      <visual name="tower_body"><pose>0 0 0.22 0 0 0</pose><geometry><box><size>0.13 0.52 0.44</size></box></geometry>
+        <material><ambient>0.22 0.24 0.27 1</ambient><diffuse>0.22 0.24 0.27 1</diffuse><specular>0.3 0.3 0.3 1</specular></material></visual>
+      <visual name="contact_left"><pose>0.067 0.12 0.12 0 0 0</pose><geometry><box><size>0.006 0.05 0.03</size></box></geometry>
+        <material><ambient>0.85 0.55 0.2 1</ambient><diffuse>0.85 0.55 0.2 1</diffuse><specular>0.9 0.7 0.4 1</specular></material></visual>
+      <visual name="contact_right"><pose>0.067 -0.12 0.12 0 0 0</pose><geometry><box><size>0.006 0.05 0.03</size></box></geometry>
+        <material><ambient>0.85 0.55 0.2 1</ambient><diffuse>0.85 0.55 0.2 1</diffuse><specular>0.9 0.7 0.4 1</specular></material></visual>
+      <visual name="status_led"><pose>0.067 0 0.40 0 0 0</pose><geometry><box><size>0.006 0.30 0.025</size></box></geometry>
+        <material><ambient>0.1 0.8 0.3 1</ambient><diffuse>0.1 0.8 0.3 1</diffuse><emissive>0.1 0.9 0.3 1</emissive></material></visual>
+      <visual name="fiducial"><pose>0.067 0 0.27 0 0 0</pose><geometry><box><size>0.004 0.16 0.16</size></box></geometry>
+        <material><ambient>0.95 0.95 0.95 1</ambient><diffuse>0.95 0.95 0.95 1</diffuse></material></visual>
+      <visual name="floor_marking"><pose>0.67 0 0.002 0 0 0</pose><geometry><box><size>1.25 0.84 0.002</size></box></geometry>
+        <material><ambient>0.9 0.75 0.1 1</ambient><diffuse>0.9 0.75 0.1 1</diffuse></material></visual>
+    </link>
+  </model>
+</sdf>

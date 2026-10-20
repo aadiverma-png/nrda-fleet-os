@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NRDA Fleet Console</title>
+<meta name="description" content="Live operations console for the NRDA decentralised AMR fleet: floor map, hazards, task allocation, robot heartbeat and performance analysis.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231F4FA0'/%3E%3Crect x='6' y='10' width='20' height='12' rx='2' fill='%23F5C400'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="6" class="mark-bg"/><rect x="6" y="10" width="20" height="12" rx="2" class="mark-amr"/></svg>
+    <div>
+      <h1>NRDA Fleet Console</h1>
+      <p class="site-line">NRDS smart warehouse · <span id="robot-count">20</span> AMR-01 robots · <span id="algo">NRDA-FA</span></p>
+    </div>
+  </div>
+
+  <p class="runline">
+    <span id="sim-time">00:00</span> on shift
+    <b id="v-done">0</b> delivered
+    <b id="v-busy">0</b> on the move
+  </p>
+
+  <div class="top-actions">
+    <span class="link" id="link-state" role="status">Connecting</span>
+    <button class="btn" id="btn-pause-all" type="button">Pause fleet</button>
+    <button class="btn" id="btn-resume-all" type="button">Resume fleet</button>
+    <button class="btn estop" id="btn-estop" type="button" aria-pressed="false">Emergency stop</button>
+    <button class="btn ghost" id="btn-theme" type="button" aria-label="Switch between light and dark theme">
+      <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M10 3a7 7 0 0 1 0 14z"/></svg>
+    </button>
+  </div>
+</header>
+
+<!-- The one loud element: the fleet's highest live risk, written as a sentence and
+     drawn as hazard tape. The striped length is the chance it goes wrong. -->
+<section class="band" id="band" aria-label="Highest risk right now">
+  <button class="band-say" id="band-say" type="button">
+    <span class="band-dot" aria-hidden="true"></span>
+    <span class="band-words">
+      <b id="band-text">Waiting for the fleet</b>
+      <span class="band-why" id="band-why">The console shows the highest risk here as soon as the robots report in.</span>
+    </span>
+    <span class="band-p" id="band-p" aria-hidden="true">–</span>
+  </button>
+
+  <dl class="ledger" id="ledger">
+    <div><dt>Open tasks</dt><dd id="led-open">0</dd></div>
+    <div><dt>Collisions</dt><dd id="led-coll">0</dd></div>
+    <div><dt>Near misses</dt><dd id="led-near">0</dd></div>
+    <div><dt>Deadlocks solved</dt><dd id="led-dl">0/0</dd></div>
+    <div><dt>Reporting</dt><dd id="led-hb">0/0</dd></div>
+  </dl>
+
+  <div class="tape" aria-hidden="true"><i id="band-tape"></i></div>
+</section>
+
+<main class="layout">
+  <section class="floor" aria-label="Warehouse floor">
+    <div class="map-wrap">
+      <svg id="map" role="img" aria-label="Live map of the warehouse floor and the robots"></svg>
+      <div class="map-tools" role="toolbar" aria-label="Map tools">
+        <button class="btn small" id="btn-fit" type="button">Fit floor</button>
+        <button class="btn small" id="btn-paths" type="button" aria-pressed="true">Routes</button>
+        <button class="btn small" id="btn-labels" type="button" aria-pressed="true">Numbers</button>
+        <button class="btn small" id="btn-pallet" type="button" aria-pressed="false">Drop a pallet</button>
+        <button class="btn small" id="btn-legend" type="button" aria-pressed="false" aria-controls="legend">Key</button>
+      </div>
+      <div class="legend" id="legend" aria-label="Robot colours" hidden></div>
+      <p class="map-hint" id="map-hint">Scroll to zoom, drag to pan, click a robot for details.</p>
+      <div class="map-empty" id="map-empty" hidden>
+        <h2 id="empty-title">Waiting for the robots</h2>
+        <p id="empty-text">Gazebo is starting. Each AMR appears here as soon as its on-board agent reports its position.</p>
+      </div>
+    </div>
+    <div class="ticker">
+      <ol class="activity" id="log" aria-live="polite" aria-label="Latest fleet activity"></ol>
+      <button class="btn small ghost ticker-more" id="btn-ticker" type="button" aria-expanded="false" aria-controls="log">More</button>
+    </div>
+  </section>
+
+  <aside class="rail">
+    <!-- Always on screen: the only things that need a decision now. -->
+    <section class="needs" id="needs" aria-live="polite" aria-labelledby="needs-h">
+      <div class="needs-top">
+        <h2 id="needs-h">Needs you</h2>
+        <span class="needs-count" id="needs-count">nothing open</span>
+      </div>
+      <ol class="risks" id="risk-list"></ol>
+      <ol class="incidents" id="open-list"></ol>
+    </section>
+
+    <button class="release" id="btn-random" type="button">
+      <span class="release-title">Release 10 random tasks</span>
+      <span class="release-sub">Random pick-ups, drop-offs and priorities. The robots auction them among themselves.</span>
+    </button>
+
+    <nav class="tabs" role="tablist" aria-label="Console sections">
+      <button role="tab" type="button" aria-selected="true" data-tab="fleet">Robots <span class="count" id="t-fleet"></span></button>
+      <button role="tab" type="button" aria-selected="false" data-tab="tasks">Tasks <span class="count" id="t-open"></span></button>
+      <button role="tab" type="button" aria-selected="false" data-tab="safety">Safety <span class="count" id="t-safety"></span></button>
+      <button role="tab" type="button" aria-selected="false" data-tab="analysis">Analysis</button>
+    </nav>
+
+    <!-- ------------------------------------------------------------ robots -->
+    <div class="panel" id="tab-fleet" role="tabpanel">
+      <section class="hb" aria-labelledby="hb-h">
+        <div class="sub-row">
+          <h2 id="hb-h">Heartbeat</h2>
+          <button class="btn small" id="btn-hb-sort" type="button" data-sort="id">Sort by age</button>
+        </div>
+        <p class="note" id="hb-summary">Waiting for the first reports.</p>
+        <div class="hb-grid" id="hb-grid"></div>
+        <p class="hb-key">Each strip is the last 40 snapshots: a bar means that robot reported, a gap means it went quiet. A robot is <b>late</b> after 1.5 s and <b>silent</b> after 3 s, when the fleet stops giving it work.</p>
+      </section>
+
+      <h2>Robots</h2>
+      <p class="health-summary" id="health-summary">Waiting for the robots to report in.</p>
+      <div class="detail" id="robot-detail" hidden></div>
+      <ul class="tags" id="robot-tags" aria-label="Robot health"></ul>
+    </div>
+
+    <!-- ------------------------------------------------------------- tasks -->
+    <div class="panel" id="tab-tasks" role="tabpanel" hidden>
+      <form class="task-form" id="task-form">
+        <h2>New task</h2>
+        <div class="row">
+          <label>Pick up at<select name="pickup" id="f-pickup"></select></label>
+          <label>Deliver to<select name="dropoff" id="f-dropoff"></select></label>
+        </div>
+        <div class="row">
+          <label>Priority
+            <select name="priority"><option value="1">Low</option><option value="2" selected>Normal</option><option value="3">High</option><option value="4">Critical</option></select>
+          </label>
+          <label>How many<input name="count" type="number" min="1" max="50" value="1"></label>
+        </div>
+        <fieldset class="alloc">
+          <legend>Who takes it</legend>
+          <label class="radio"><input type="radio" name="mode" value="auto" checked> The fleet decides by auction (CBBA)</label>
+          <label class="radio"><input type="radio" name="mode" value="direct"> Give it to one robot</label>
+          <select name="assign_to" id="f-robot" disabled aria-label="Robot to give the task to"></select>
+          <p class="note">Robots that are paused, faulted, low on battery or were in a collision cannot be chosen.</p>
+        </fieldset>
+        <div class="form-end">
+          <span class="form-msg" id="form-msg" role="status"></span>
+          <button class="btn primary" type="submit">Release task</button>
+        </div>
+      </form>
+      <div class="board" id="board"></div>
+    </div>
+
+    <!-- ------------------------------------------------------------ safety -->
+    <div class="panel" id="tab-safety" role="tabpanel" hidden>
+      <h2>Incidents</h2>
+      <p class="note">Every deadlock and collision, with how it ended. A tick means the fleet solved it on its own.</p>
+      <div class="filters" role="radiogroup" aria-label="Show incidents">
+        <label class="chip-radio"><input type="radio" name="inc" value="" checked><span>All</span></label>
+        <label class="chip-radio"><input type="radio" name="inc" value="open"><span>Not solved</span></label>
+        <label class="chip-radio"><input type="radio" name="inc" value="solved"><span>Solved</span></label>
+      </div>
+      <ol class="incidents" id="incident-list"></ol>
+
+      <h2>Safety events</h2>
+      <div class="filters" role="radiogroup" aria-label="Show">
+        <label class="chip-radio"><input type="radio" name="lvl" value="" checked><span>All</span></label>
+        <label class="chip-radio"><input type="radio" name="lvl" value="COLLISION"><span>Collisions</span></label>
+        <label class="chip-radio"><input type="radio" name="lvl" value="NEAR_MISS"><span>Near misses</span></label>
+        <label class="chip-radio"><input type="radio" name="lvl" value="AVOIDED"><span>Avoided</span></label>
+      </div>
+      <table class="grid" id="event-table">
+        <thead><tr><th scope="col">Time</th><th scope="col">What</th><th scope="col">Who</th><th scope="col">Where</th><th scope="col"><span class="sr">Review</span></th></tr></thead>
+        <tbody></tbody>
+      </table>
+
+      <h2>Picker zones</h2>
+      <p class="note">Keep robots out of a zone, or make them slow down in it. Every robot's route planner applies the rule.</p>
+      <table class="grid" id="zone-table">
+        <thead><tr><th scope="col">Zone</th><th scope="col">Events</th><th scope="col">Rule</th><th scope="col"><span class="sr">Change rule</span></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <!-- ---------------------------------------------------------- analysis -->
+    <div class="panel" id="tab-analysis" role="tabpanel" hidden>
+      <div class="kpi-groups" id="kpi-groups"></div>
+
+      <figure class="chart" id="fig-delivered">
+        <figcaption>
+          <h2>Tasks delivered</h2>
+          <p class="note">Running total since the shift started. Red rules mark collisions, amber ticks mark near misses, so you can see what a hazard cost in throughput.</p>
+        </figcaption>
+        <svg id="ch-delivered" role="img" aria-label="Tasks delivered over time, with collisions and near misses marked"></svg>
+        <div class="ch-legend">
+          <span class="lg lg-line">delivered</span>
+          <span class="lg lg-coll">collision</span>
+          <span class="lg lg-near">near miss</span>
+        </div>
+        <details class="ch-data"><summary>Show the numbers</summary><div id="tb-delivered"></div></details>
+      </figure>
+
+      <figure class="chart" id="fig-busy">
+        <figcaption>
+          <h2>Robots on a task</h2>
+          <p class="note">How much of the fleet is carrying work. The dashed line is every robot you have; the gap between them is idle capacity.</p>
+        </figcaption>
+        <svg id="ch-busy" role="img" aria-label="Number of robots on a task over time, against fleet size"></svg>
+        <details class="ch-data"><summary>Show the numbers</summary><div id="tb-busy"></div></details>
+      </figure>
+
+      <figure class="chart" id="fig-latency">
+        <figcaption>
+          <h2>Delivery time</h2>
+          <p class="note">Release to drop-off, for every task delivered so far. A long tail on the right means a few tasks waited much longer than the rest.</p>
+        </figcaption>
+        <svg id="ch-latency" role="img" aria-label="Distribution of delivery times"></svg>
+        <details class="ch-data"><summary>Show the numbers</summary><div id="tb-latency"></div></details>
+      </figure>
+
+      <figure class="chart" id="fig-robots">
+        <figcaption>
+          <h2>Delivered per robot</h2>
+          <p class="note">Who is pulling their weight. A short bar with a healthy heartbeat usually means that robot keeps losing the auction.</p>
+        </figcaption>
+        <svg id="ch-robots" role="img" aria-label="Tasks delivered by each robot"></svg>
+        <details class="ch-data"><summary>Show the numbers</summary><div id="tb-robots"></div></details>
+      </figure>
+
+      <figure class="chart" id="fig-modes">
+        <figcaption>
+          <h2>What the robots are doing</h2>
+          <p class="note">Right now, not averaged over the shift.</p>
+        </figcaption>
+        <svg id="ch-modes" role="img" aria-label="Count of robots in each mode right now"></svg>
+      </figure>
+
+      <h2>Totals since start</h2>
+      <dl class="totals">
+        <div><dt>Robot to robot collisions</dt><dd id="c-rr">0</dd></div>
+        <div><dt>Robot to rack or wall</dt><dd id="c-rs">0</dd></div>
+        <div><dt>Into obstacles</dt><dd id="c-ro">0</dd></div>
+        <div><dt>Near misses</dt><dd id="c-near">0</dd></div>
+        <div><dt>Avoided by the robots</dt><dd id="c-avoid">0</dd></div>
+        <div><dt>Deadlocks resolved</dt><dd id="c-dl">0</dd></div>
+        <div><dt>Deadlocks sent to you</dt><dd id="c-dle">0</dd></div>
+        <div><dt>Deadlocks that timed out</dt><dd id="c-dlt">0</dd></div>
+      </dl>
+
+      <details class="how">
+        <summary>How the probabilities are worked out</summary>
+        <p><b>Deadlock.</b> Robots are linked when one waits for another. A closed loop of waits is a deadlock: 100%. Otherwise the chance grows with the longest standing wait <var>T</var> and the number of robots in the chain <var>n</var>: P = (1 − e<sup>−T/25 s</sup>) × min(1, 0.5 + 0.25(n − 1)).</p>
+        <p><b>Collision.</b> Every pair of robots within 6 m is projected ahead at its current speed for 3 s. From the closest approach <var>d</var> at time <var>t</var>, the margin is m = d − 0.9 m and the uncertainty σ = 0.12 + 0.1t m, so P = Φ(−m/σ). The robots use the same model on board to brake early.</p>
+        <p><b>Solved.</b> A deadlock is ticked when the robot given priority gets through, or when every robot in it is moving again. A collision is ticked once both robots have separated and driven on. Near misses are ticked at once: the robots stopped in time.</p>
+      </details>
+    </div>
+  </aside>
+</main>
+
+<div class="tip" id="tip" hidden></div>
+<div class="toast" id="toast" role="alert" hidden></div>
+<script src="app.js"></script>
+</body>
+</html>
