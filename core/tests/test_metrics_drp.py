@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 
-from nrda_fleet.bus import AlertMsg
+from nrda_fleet.bus import AlertMsg, RobotStateMsg
 from nrda_fleet.metrics import FleetLedger
 
 
@@ -71,3 +71,68 @@ def test_nothing_is_ever_unaccounted():
     assert k["deadlocks"] == 3 and k["deadlock_episodes"] == 2
     assert k["deadlocks_unaccounted"] == 0
     assert (k["deadlocks_resolved"], k["deadlocks_timed_out"], k["deadlocks_escalated"]) == (1, 1, 1)
+
+
+# ------------------------------------------------------------- a running plan is not a lost deadlock
+
+
+def test_a_plan_still_running_is_in_flight_not_unaccounted():
+    """Measured in a 20-robot run: the KPI read unaccounted=1 mid-rung, then 0 once the plan finished."""
+    L = FleetLedger()
+    plan(L, "AMR_1:100", ["AMR_1", "AMR_2"])
+    k = L.kpis()
+    assert (k["deadlocks"], k["deadlock_episodes"]) == (1, 1)
+    assert k["deadlocks_in_flight"] == 1
+    assert k["deadlocks_unaccounted"] == 0  # it is running, not lost
+    done(L, "AMR_1:100", "D6")
+    k = L.kpis()
+    assert k["deadlocks_in_flight"] == 0
+    assert (k["deadlocks_resolved"], k["deadlocks_unaccounted"]) == (1, 0)
+
+
+def test_several_rungs_in_flight_are_all_counted():
+    L = FleetLedger()
+    plan(L, "AMR_1:100", ["AMR_1", "AMR_2"])
+    plan(L, "AMR_3:200", ["AMR_3", "AMR_4"], t=11.0)
+    k = L.kpis()
+    assert (k["deadlocks"], k["deadlocks_in_flight"], k["deadlocks_unaccounted"]) == (2, 2, 0)
+    done(L, "AMR_1:100", "timeout")
+    k = L.kpis()
+    assert (k["deadlocks_in_flight"], k["deadlocks_timed_out"], k["deadlocks_unaccounted"]) == (1, 1, 0)
+
+
+# ------------------------------------------------------- the cycle only closes if every robot names one
+
+
+def _stand(L, rid, x, y, waiting, t):
+    """One stationary robot in a driving mode, parked in the wait-for graph."""
+    L.on_message(RobotStateMsg(rid, t, x, y, 0.0, 0.0, 0.0, mode="to_drop", waiting_for=list(waiting)), t)
+
+
+def _chain(L, head_waits_for, t):
+    """AMR_1 -> AMR_17 -> AMR_19 -> (head_waits_for). The real geometry from the Gazebo run."""
+    _stand(L, "AMR_1", -27.89, 4.34, ["AMR_17"], t)
+    _stand(L, "AMR_17", -29.08, 7.98, ["AMR_19"], t)
+    _stand(L, "AMR_19", -29.02, 9.84, head_waits_for, t)
+
+
+def test_a_closed_wait_loop_is_a_deadlock_not_a_risk():
+    """With the head naming the tail the loop closes, so the DRP sees a deadlock to resolve."""
+    L = FleetLedger()
+    _chain(L, ["AMR_1"], 10.0)
+    _chain(L, ["AMR_1"], 20.0)  # T > 2 s of standing wait
+    hits = [r for r in L.risk() if r["robots"] == ["AMR_1", "AMR_17", "AMR_19"]]
+    assert len(hits) == 1
+    assert hits[0]["kind"] == "deadlock" and hits[0]["p"] == 1.0
+    assert "closed wait loop" in hits[0]["why"]
+
+
+def test_a_silent_head_leaves_the_same_jam_as_a_mere_risk():
+    """The pre-fix shape: AMR_19 stopped but naming nobody. No cycle, so the DRP declines it."""
+    L = FleetLedger()
+    _chain(L, [], 10.0)
+    _chain(L, [], 20.0)
+    hits = [r for r in L.risk() if set(r["robots"]) == {"AMR_1", "AMR_17", "AMR_19"}]
+    assert len(hits) == 1
+    assert hits[0]["kind"] == "deadlock_risk" and hits[0]["p"] < 1.0
+    assert "has waited" in hits[0]["why"]

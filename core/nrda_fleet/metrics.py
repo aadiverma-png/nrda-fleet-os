@@ -423,8 +423,12 @@ class FleetLedger:
             "deadlocks_resolved": self.drp["resolved"],
             "deadlocks_escalated": self.drp["escalated"],
             "deadlocks_timed_out": self.drp["timeouts"],
+            "deadlocks_in_flight": len(self.drp_open),
+            # A plan still running is not a lost deadlock. Counting it as unaccounted made the KPI report a
+            # phantom fault for the whole life of every rung: measured 1 mid-run, 0 twenty seconds later with
+            # both episodes resolved. Only plans that ended in no outcome at all are unaccounted for.
             "deadlocks_unaccounted": max(0, self.drp["plans"] - self.drp["resolved"] - self.drp["escalated"]
-                                         - self.drp["timeouts"]),
+                                         - self.drp["timeouts"] - len(self.drp_open)),
             "standoffs": self.standoff["episodes"],
             "standoff_plans": self.standoff["plans"],
             "standoff_movers": self.standoff["movers"],
