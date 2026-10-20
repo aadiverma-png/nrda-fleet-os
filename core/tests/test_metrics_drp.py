@@ -136,3 +136,28 @@ def test_a_silent_head_leaves_the_same_jam_as_a_mere_risk():
     assert len(hits) == 1
     assert hits[0]["kind"] == "deadlock_risk" and hits[0]["p"] < 1.0
     assert "has waited" in hits[0]["why"]
+
+
+# ------------------------------------------------- a blocker behind the waiter is a legitimate edge
+
+
+def test_a_wait_edge_pointing_backwards_still_closes_the_loop():
+    """A blocker may legitimately sit *behind* the waiter, and the graph must not care.
+
+    Claims are space-TIME: a robot still rolling up behind can hold a reservation on the stretch
+    ahead of a robot that has already stopped, so the stopped one waits for its own follower. Seen
+    in Gazebo as AMR_17 (y=7.98, heading south) waiting on AMR_19 (y=9.84), which looked backwards
+    enough to be mistaken for a defect. Measured over a 420 s, 20-robot, 30-task run: 24 backward
+    edges against 321 forward ones, median 0.6 s against 1.4 s, longest 40.6 s against 276.2 s -
+    rarer and shorter-lived than ordinary waits, so they are not a pathology to be removed.
+
+    Dropping them from the wait-for graph on geometry would hide real cycles - this one included.
+    """
+    L = FleetLedger()
+    for t in (10.0, 20.0):  # T > 2 s of standing wait
+        _stand(L, "AMR_17", -29.08, 7.98, ["AMR_19"], t)   # waits on the robot behind it
+        _stand(L, "AMR_19", -29.02, 9.84, ["AMR_17"], t)   # which waits right back
+    hits = [r for r in L.risk() if set(r["robots"]) == {"AMR_17", "AMR_19"}]
+    assert len(hits) == 1
+    assert hits[0]["kind"] == "deadlock" and hits[0]["p"] == 1.0
+    assert "closed wait loop" in hits[0]["why"]
