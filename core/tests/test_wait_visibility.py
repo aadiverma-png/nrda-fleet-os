@@ -12,6 +12,7 @@ from nrda_fleet.allocation import StationDistances
 from nrda_fleet.bus import ClaimMsg
 from nrda_fleet.deadlock import RUNG_S, DRPPlan, Move
 from nrda_fleet.lane_graph import LaneGraph
+from nrda_fleet.scheduler import Wait
 from nrda_fleet.sim2d import Sim2D
 from nrda_fleet.site import Site
 from nrda_fleet.tasks import Task
@@ -146,3 +147,47 @@ def test_a_free_moving_robot_publishes_no_blockers(world, dist):
             assert ag.waiting_for == [], (sim.t, ag.mode, ag.waiting_for)
     assert moving > 10  # the run really did drive
     assert ag._station_blocker == ""
+
+
+# ------------------------------------------------------------------ D: the stop is now, not in 1 s
+
+
+def _distant_wait_plan(ag, blocker: str = "AMR_9", lead: float = 5.0):
+    """A real plan carrying one wait that starts well past the 1 s look-ahead."""
+    plan = ag.sched.plan(T0, *ag.pose, 0.0, [], hold_final=ag.cfg.window)
+    plan.waits = [Wait(u=2.0, until=T0 + lead, res=("lane_cell", 7), blockers=(blocker,), t_start=T0 + lead)]
+    return plan
+
+
+def test_a_stopped_robot_names_its_blocker_however_far_off_the_wait_is(world, dist):
+    """The head of a wait-for cycle must close the cycle even when its wait is scheduled later.
+
+    AMR_19 stood still 71 s at the head of AMR_1 -> AMR_17 -> AMR_19 with its first wait more than
+    1 s out, published `waiting_for=[]`, and the DRP never saw a cycle to resolve.
+    """
+    ag = _agent(world, dist)
+    ag._go("P09", "to_pickup")
+    plan = _distant_wait_plan(ag)
+    assert plan.waits[0].t_start > T0 + 1.0  # outside the look-ahead that used to gate the edge
+    assert plan.blocked_by == ("AMR_9",)
+    ag._handle_waits(T0, plan)
+    assert ag.waiting_for == ["AMR_9"]
+
+
+def test_a_rolling_robot_still_keeps_a_distant_wait_to_itself(world, dist):
+    """The look-ahead still holds for a robot under way: it has not reached that wait yet."""
+    ag = _agent(world, dist)
+    ag._go("P09", "to_pickup")
+    ag.v = 1.2
+    ag._handle_waits(T0, _distant_wait_plan(ag))
+    assert ag.waiting_for == []
+
+
+def test_a_stationary_robot_outside_a_driving_mode_claims_no_wait(world, dist):
+    """Parked, charging or loading is not waiting: only a driving mode may name a blocker."""
+    ag = _agent(world, dist)
+    ag._go("P09", "to_pickup")
+    plan = _distant_wait_plan(ag)
+    ag.mode = "parked"
+    ag._handle_waits(T0, plan)
+    assert ag.waiting_for == []

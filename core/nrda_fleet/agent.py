@@ -1119,8 +1119,15 @@ class EdgeAgent:
                 self.waiting_for = []
                 self._wait_since = None
                 return
-        is_blocked = (plan.waits and plan.waits[0].t_start <= t + 1.0) or (bool(plan.auth_blockers) and plan.u_authority <= 0.05)
-        self.waiting_for = blockers if abs(self.v) < 0.05 and is_blocked else []
+        stopped = abs(self.v) < 0.05
+        imminent = (plan.waits and plan.waits[0].t_start <= t + 1.0) or (bool(plan.auth_blockers) and plan.u_authority <= 0.05)
+        # A robot that has already stopped is blocked *now*, whatever its schedule says. The 1 s look-ahead
+        # above is for a robot still rolling, which should not advertise a wait it has not reached yet.
+        # Observed in Gazebo: AMR_19 stood still 71 s at the head of the cycle AMR_1 -> AMR_17 -> AMR_19,
+        # its first wait scheduled further out, so it named nobody; the cycle never closed in the wait-for
+        # graph and the DRP - which needs a cycle - could not see the deadlock until the schedule drifted.
+        is_blocked = imminent or (stopped and self.mode in MOVING and bool(plan.waits))
+        self.waiting_for = blockers if stopped and is_blocked else []
         if not self.waiting_for and t < self._drp_hold_until and getattr(self, "_drp_prio_rid", ""):
             self.waiting_for = [self._drp_prio_rid]
         # last resort: the route was cut short of an occupied station, so no wait names the occupant. Without
