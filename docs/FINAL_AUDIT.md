@@ -71,7 +71,6 @@ The same agent code runs in the fast 2-D simulator (`core/nrda_fleet/sim2d.py`) 
 | Simulated lidar (CPU) | Vectorised ray vs oriented-box **slab intersection** | `raycast.py`, `lidar_emulator_node.py` | Tooling | 14.5 |
 | Radio loss for testing | Gilbert-Elliott two-state burst-loss channel | `bus.py` (`SimBus`) | Tooling | 14.9 |
 | Realistic order flow | Poisson task releases | `tasks.generate_workload` | Tooling | 14.9 |
-| Are the KPIs stable across seeds | Mean ± t-based 95 % confidence interval | `benchmarks/report.py` | Tooling | 14.9 |
 
 **Command-authority rule.** The MotionArbiter is the **only** writer of `/AMR_i/cmd_vel`. Every other layer submits an *intent* with a source priority: OPERATOR > EMERGENCY > FLEET > PLANNER. This removes the command conflicts that come from running two stacks together. It is verified at launch: the "single writer" check reported 0 conflicts in the last Gazebo run.
 
@@ -413,7 +412,7 @@ The rotation-guard minimum sweep fixes a real bug. A creeping command (0.17 rad/
 | Peak Load Stress Test (`scenario:=busy`, 240 tasks, 16/min) | **225.6 – 251.2 tasks/hr throughput**, 84.4% fleet utilization, 0 collisions, 0 escalated deadlocks (`needs_you` = 0). |
 | Corridor `VE` Narrow Bottleneck Resolution | One-way directional enforcement (`is_lane_enabled`) on `VE/A` + DRP single-file standoff reroute (`single_file_standoff`). Head-on gridlocks completely eliminated. |
 | Full Warehouse Reachability | **1,892 / 1,892 (100%)** station pairs reachable, as last measured by `test_every_station_reachable_from_every_charger`. That test was deleted with the suite; the figure is no longer reproducible from this tree. |
-| Scenario benchmark (`benchmarks/`, S1-S6 in the 2-D simulator) | S1 nominal, 20 robots, 600 s: 252 tasks/h, 74.9% utilisation, 0 collisions, 0 robot-robot collisions, 28 contentions resolved autonomously by the DRP. Thresholds and method in section 13. |
+| Scenario benchmark (S1-S6 in the 2-D simulator) | **Removed.** `benchmarks/` was deleted. The last recorded S1 run (20 robots, 600 s) was 252 tasks/h, 74.9% utilisation, 0 collisions, 0 robot-robot collisions and 28 contentions resolved autonomously by the DRP; those figures are history, not a property of this tree. Method and thresholds are kept in section 13 for reference. |
 
 **Current operational characteristics:**
 1. **Throughput:** Sustained 225.6 tasks/h in continuous peak stress, exceeding the 120 tasks/h production requirement by $88\%$.
@@ -424,6 +423,11 @@ The rotation-guard minimum sweep fixes a real bug. A creeping command (0.17 rad/
 ---
 
 ## 13. Benchmark method and thresholds
+
+> **Removed from this tree.** `benchmarks/` (the scenario definitions, the 2-D runner and the KPI
+> report) has been deleted, and there is no `./nrda.sh bench`. This section is kept as the record of
+> how the figures quoted in section 12 were produced and what they were measured against. Nothing
+> here is runnable from this repository; the only load test left is `./nrda.sh sim scenario:=busy`.
 
 The same edge agents that run in Gazebo are driven headless in the 2-D simulator
 (`core/nrda_fleet/sim2d.py`): same lane graph, same CBBA allocation, same station manoeuvres, same
@@ -443,7 +447,7 @@ and the lidar are cheaper, so a 600 s scenario runs in about a minute.
 
 **Method.** Every scenario runs over several seeds; a run is fully determined by its seed, so a
 re-run reproduces it exactly. Reported values are the mean over seeds with the 95 % confidence
-half-width (Student *t*, `benchmarks/report.py`).
+half-width (Student *t*), computed by the deleted `benchmarks/report.py`.
 
 **Absolute thresholds.** A run passes when it meets all of:
 
@@ -456,11 +460,6 @@ half-width (Student *t*, `benchmarks/report.py`).
 | Fleet utilisation | > 70 % |
 | Planning time p95, per robot | < 50 ms (the 4 Hz replan budget) |
 | Station pair reachability | 1,892 / 1,892 |
-
-```bash
-./nrda.sh bench --seeds 5     # all scenarios, then benchmarks/results/summary.md
-./nrda.sh bench --quick       # S1 + S2, 2 seeds
-```
 
 ---
 
@@ -669,7 +668,7 @@ Gaussian range noise σ = 0.01 m is added. Boxes further than `r_max + h_l + h_w
   ```
 
   Pick-up and drop-off stations are drawn at random.
-- **Benchmark statistics** (`benchmarks/report.py`). For n seeds with values x_i:
+- **Benchmark statistics** (the deleted `benchmarks/report.py`). For n seeds with values x_i:
 
   ```
   x̄ = (1/n) Σ x_i,     s = √( Σ (x_i − x̄)² / (n − 1) )

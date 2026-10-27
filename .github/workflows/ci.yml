@@ -15,9 +15,13 @@ jobs:
     container: ros:jazzy
     steps:
       - uses: actions/checkout@v4
-      - run: apt-get update && apt-get install -y ros-jazzy-ros-gz ros-jazzy-nav2-map-server ros-jazzy-nav2-lifecycle-manager python3-numpy python3-yaml
+      - run: apt-get update && apt-get install -y ros-jazzy-ros-gz ros-jazzy-nav2-map-server ros-jazzy-nav2-lifecycle-manager python3-numpy python3-yaml python3-pytest
       - shell: bash
         run: |
           source /opt/ros/jazzy/setup.bash
           cd ros2_ws && colcon build --base-paths src ../core
-      - run: python3 benchmarks/run_scenarios.py --scenarios S1_nominal --seeds 1 --no-lidar --workers 1
+      - shell: bash
+        run: |
+          source /opt/ros/jazzy/setup.bash
+          source ros2_ws/install/setup.bash
+          python3 -m pytest ros2_ws/src/nrda_fleet_ros/test/test_*.py -q

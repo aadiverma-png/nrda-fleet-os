@@ -2,12 +2,6 @@
 
 **Edge-AI decentralised fleet coordination for autonomous mobile robots in smart warehouses.**
 
-<p align="center">
-  <img src="docs/images/rviz.png" alt="RViz showing the 20-robot fleet, its lanes and space-time claims" width="880">
-  <br>
-  <em>RViz: the full fleet mid-run &mdash; occupancy map, lane network, per-robot routes, space-time claims and live lidar scans.</em>
-</p>
-
 Twenty AMR-01 tote transporters (`AMR_1` … `AMR_20`) work the NRDS warehouse in Gazebo Harmonic and RViz.
 - Each robot runs its own edge agent, and there is no central planner.
 - Robots bid for transport tasks, reserve space-time on a shared lane network, and bypass blocked lanes.
@@ -16,20 +10,6 @@ Twenty AMR-01 tote transporters (`AMR_1` … `AMR_20`) work the NRDS warehouse i
 Operators watch the fleet, count collisions and release tasks from a web console.
 
 The coordination algorithm is **NRDA-FA**: a five-layer onboard stack covering task and health, allocation, routing with space-time reservation, local coordination, and motion with safety. See [`docs/FINAL_ALGORITHM.md`](docs/FINAL_ALGORITHM.md) for the specification and [`docs/FINAL_AUDIT.md`](docs/FINAL_AUDIT.md) for every algorithm with its published source and mathematics.
-
-## The simulation
-
-<p align="center">
-  <img src="docs/images/gazebo.png" alt="The NRDS warehouse in Gazebo Harmonic" width="820">
-  <br>
-  <em>Gazebo Harmonic &mdash; the warehouse the fleet actually drives: inbound docks, conveyor lines, racking and the marked lane network.</em>
-</p>
-
-<p align="center">
-  <img src="docs/images/console.png" alt="The fleet console showing live KPIs and two deadlock incidents" width="660">
-  <br>
-  <em>The web operator console &mdash; live KPIs, the fleet map and the incident feed, here holding a closed wait loop at 100 % and a three-robot deadlock risk at 94 %.</em>
-</p>
 
 ## Quick start
 
@@ -54,8 +34,7 @@ The browser console opens automatically.
 | `./nrda.sh sim sensor_profile:=fleet` | Gazebo GPU lidars instead of the CPU lidar model (runs at about half real time on a 4 GB GPU) |
 | `./nrda.sh sim gui:=false` | Headless Gazebo: RViz and the console only (~1.0x real time) |
 | `./nrda.sh sim sim_speed:=1.5` | Ask Gazebo for 1.5x real time (when CPU has headroom, e.g. with `gui:=false`) |
-| `./nrda.sh test` | The ROS node tests (`nrda_fleet_ros`); the ROS-free core has no test suite |
-| `./nrda.sh bench --quick` | Scenario benchmark in the 2-D simulator, then the KPI report |
+| `./nrda.sh test` | The three `nrda_fleet_ros` node tests (gateway, pose watchdog, console heartbeat). The ROS-free core has no test suite |
 | `./nrda.sh stop` | Stop every simulation process cleanly |
 
 Requirements: Ubuntu 24.04, ROS 2 Jazzy, Gazebo Harmonic (`ros-jazzy-ros-gz`), `ros-jazzy-nav2-map-server`, and Python 3.12 with numpy, pyyaml and matplotlib. No other Python packages are needed.
@@ -101,7 +80,6 @@ More detail: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), [`docs/INTERFACES.m
 | `ros2_ws/src/nrds_warehouse_sim/` | NRDS warehouse world (open roof, 2 m racking: `scripts/declutter_mesh.py`), AMR-01 model, 10 chargers, 15 sleeping bays, fleet roster, Gazebo/RViz launch |
 | `ros2_ws/src/nrda_msgs/` | Typed peer-bus interfaces (`RobotState`, `ClaimSet`, `Bid`, `Alert`, `Control`, etc.) |
 | `ros2_ws/src/nrda_fleet_ros/` | Edge-agent node, lidar emulator, safety monitor, RViz fleet view, web gateway and console (`web/`) |
-| `benchmarks/` | Scenario definitions, the 2-D runner and the KPI report |
 | `docs/` | Architecture, interfaces, safety case, algorithm audit and operations runbook |
 
 ## Single-File Corridor Engineering & Deadlock Elimination
@@ -112,9 +90,11 @@ In high-density warehouse operations (20 AMRs), narrow aisles and single-file co
 - **Standoff Rerouting:** In `nrda_fleet/deadlock.py`, the Distributed Deadlock Resolution Protocol (`DRP`) identifies `single_file_standoff` conditions where chain reverse is geometrically infeasible. The loser robot is assigned to dynamically reroute (`Move(loser.rid, "reroute", 0.0, 0)`) to clear the corridor.
 - **Legal Hold Prohibition:** Enforced `_is_legal_hold(..., is_peer=bool(auth_blockers))` in `nrda_fleet/scheduler.py` to prevent yielding robots from holding inside single-file corridors.
 
-## Live Simulation Benchmarks (Peak Load)
+## Peak load, measured in Gazebo
 
-Under peak stress testing (`scenario:=busy`, 240 tasks released at 16 tasks/min across all 20 AMRs):
+These figures come from live `./nrda.sh sim scenario:=busy` runs (240 tasks released at 16 tasks/min
+across all 20 AMRs), read off the console KPIs. There is no offline benchmark harness in this tree, so
+reproducing them means running the simulation:
 - **Throughput:** Peak **251.2 tasks/hr**, sustained **225.6 tasks/hr** ($>2\times$ the target 120 tasks/hr).
 - **Fleet Utilization:** **84.4%** across all 20 AMRs simultaneously.
 - **Safety Record:** **0 robot-robot collisions**, **0 near-misses**.

@@ -30,18 +30,18 @@ In every case R1 **reports the obstacle** to the fleet so a person can remove it
 ## Quickstart
 
 ```bash
-./nrda.sh bench --quick                   # the library at twenty robots, in the 2-D benchmark
+./nrda.sh sim                             # the library at twenty robots, in Gazebo
 ```
 
-**In the fleet:** this library is layer L1/L2 of NRDA-FA. To see it in Gazebo with
-20 robots, use `./nrda.sh sim` from the repository root.
+**In the fleet:** this library is layer L1/L2 of NRDA-FA. `./nrda.sh sim` from the
+repository root is the only way to run it at fleet scale in this tree.
 
 It uses only the Python ≥ 3.10 standard library.
 
 The two-lane `sim/aisle_sim.py` harness that once drove this library standalone has been
-removed, and so has the test suite. Visison is now exercised only through the fleet:
-`nrda_fleet` imports it in fourteen modules, and the 2-D benchmark (`./nrda.sh bench`)
-runs it at twenty robots. There is no unit-level cover for it in this tree.
+removed, and so have the test suite and the scenario benchmark. Visison is now exercised
+only through the fleet: `nrda_fleet` imports it in fourteen modules, and `./nrda.sh sim`
+runs it at twenty robots in Gazebo. There is no unit-level cover for it in this tree.
 
 ## Using the planner directly
 
@@ -124,7 +124,7 @@ It works for any number of robots (`EmergencyCoordinator.register`).
 - **Graded response**: small timing errors are absorbed by ORCA without an emergency brake.
 - **Reciprocal windows**: oncoming robots of our own fleet slip by 1–5 s when that saves more than the bypasser would wait.
 
-See MATH.md section 10 and [`plans/PLAN_A_ORCA.md`](plans/PLAN_A_ORCA.md). In the sim: `--orca`, `--coop`. In Gazebo: `orca:=true coop:=true`.
+See [`MATH.md`](MATH.md) section 10. In Gazebo: `orca:=true coop:=true`.
 
 ## How it decides
 
@@ -144,5 +144,5 @@ See [`MATH.md`](MATH.md) for the derivations and worked examples. In short:
 visison/   geometry, kinematics, intervals, reservation, planner, controller, adapters, reporting,
            emergency (collision risk, tracker), standoff (coordinator, chain reverse),
            arbiter (one command path), orca + motion_models (ORCA-DD), tracking
-docs/      MATH.md, plans/PLAN_A_ORCA.md
+docs/      MATH.md
 ```

@@ -142,7 +142,6 @@ checked, at run time. The rules remain implemented and unverified.
 ```bash
 ./nrda.sh test                   # the ROS node tests; the ROS-free core has no suite
 ./nrda.sh build                  # colcon: core, warehouse, messages, fleet runtime
-./nrda.sh bench --quick          # scenario benchmark in the 2-D simulator
 ```
 
 The evidence table, including the peak-load stress results, is

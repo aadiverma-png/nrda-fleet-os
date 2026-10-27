@@ -4,8 +4,7 @@
 #   ./nrda.sh build                 build the ROS 2 workspace (core + warehouse + msgs + fleet runtime)
 #   ./nrda.sh sim [launch args]     Gazebo + RViz + web console + 20 AMRs running NRDA-FA
 #   ./nrda.sh sim sensor_profile:=fleet       Gazebo GPU lidars instead of the CPU lidar model
-#   ./nrda.sh test                  unit + integration tests (ROS-free core)
-#   ./nrda.sh bench [--quick]       scenario benchmark (2-D simulator) + KPI report
+#   ./nrda.sh test                  the nrda_fleet_ros node tests
 #   ./nrda.sh stop                  stop every simulation process
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -63,13 +62,9 @@ case "$cmd" in
       python3 -m pytest "${ros_tests[@]}" -q
     fi
     ;;
-  bench)
-    python3 "$ROOT/benchmarks/run_scenarios.py" "$@"
-    python3 "$ROOT/benchmarks/report.py"
-    ;;
   stop)
     stop_all
     ;;
   *)
-    sed -n '2,9p' "$0"; exit 1 ;;
+    sed -n '2,8p' "$0"; exit 1 ;;
 esac
