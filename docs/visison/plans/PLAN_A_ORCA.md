@@ -1,5 +1,10 @@
 # Plan A: ORCA features that make Visison more efficient
 
+> **Historical plan.** Written before the ORCA-DD work landed and kept as the design record.
+> Its verification steps run against `sim/aisle_sim.py` and `python3 -m pytest`; both the harness
+> and the test suite have since been deleted, so those commands no longer execute. The ORCA-DD
+> implementation itself is live in `core/visison/orca.py` and `motion_models.py`.
+
 ## Context
 
 The user wants ORCA (Optimal Reciprocal Collision Avoidance, van den Berg et al. 2011) in Visison and asked which of its features can make the algorithm *more efficient*. Today Visison has:

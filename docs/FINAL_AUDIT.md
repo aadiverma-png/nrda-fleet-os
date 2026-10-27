@@ -408,11 +408,11 @@ The rotation-guard minimum sweep fixes a real bug. A creeping command (0.17 rad/
 
 | Check | Result |
 |---|---|
-| Unit and integration tests (ROS-free core) | **180 passed in ~35 s (100% pass rate)** across the visison, coordination and deadlock suites. |
-| Single motor-command writer (Gazebo) | 0 conflicts, 20/20 agents running NRDA-FA through `MotionArbiter`. |
+| Unit and integration tests (ROS-free core) | **Removed.** `core/tests/` was deleted. The last recorded run (2026-10-16, commit `c2ad181`) was 180 passed in ~35 s; that figure is history, not a property of this tree. Nothing in the ROS-free core is covered now. |
+| Single motor-command writer (Gazebo) | 0 conflicts, 20/20 agents running NRDA-FA through `MotionArbiter`. Still checked at run time by `edge_agent_node._check_single_writer`; its unit cover went with the suite. |
 | Peak Load Stress Test (`scenario:=busy`, 240 tasks, 16/min) | **225.6 – 251.2 tasks/hr throughput**, 84.4% fleet utilization, 0 collisions, 0 escalated deadlocks (`needs_you` = 0). |
 | Corridor `VE` Narrow Bottleneck Resolution | One-way directional enforcement (`is_lane_enabled`) on `VE/A` + DRP single-file standoff reroute (`single_file_standoff`). Head-on gridlocks completely eliminated. |
-| Full Warehouse Reachability | **1,892 / 1,892 (100%)** station pairs reachable. |
+| Full Warehouse Reachability | **1,892 / 1,892 (100%)** station pairs reachable, as last measured by `test_every_station_reachable_from_every_charger`. That test was deleted with the suite; the figure is no longer reproducible from this tree. |
 | Scenario benchmark (`benchmarks/`, S1-S6 in the 2-D simulator) | S1 nominal, 20 robots, 600 s: 252 tasks/h, 74.9% utilisation, 0 collisions, 0 robot-robot collisions, 28 contentions resolved autonomously by the DRP. Thresholds and method in section 13. |
 
 **Current operational characteristics:**
@@ -532,8 +532,9 @@ half-width (Student *t*, `benchmarks/report.py`).
 Two of this module's entry points are in the fleet runtime: `conflict_groups` (used by
 `deadlock.deadlock_group`) and `plan_chain_reverse` (used by `nrda_fleet/standoff.py`, the L2b
 in-aisle chain reverse). The rest of the module — `EmergencyCoordinator` and the central
-braking state machine it drives — is **library only**: it runs in `core/sim/aisle_sim.py` and
-nowhere in the 20-robot fleet.
+braking state machine it drives — is **dead code**: its only driver was `core/sim/aisle_sim.py`,
+which has been deleted. It is still exported from `visison/__init__.py` but nothing in this tree
+calls it, in the fleet or anywhere else.
 
 **Problem.** Several robots stopped head-on in one aisle (after an emergency) can neither wait nor go around.
 
@@ -747,7 +748,7 @@ Gaussian range noise σ = 0.01 m is added. Boxes further than `r_max + h_l + h_w
 - **deterministic:** every replica computes the same group, coordinator and plan from the same gossip;
 - **non-intrusive:** robots only publish plans; each robot moves itself through its own MotionArbiter, so the single-writer rule holds.
 
-Source: `core/nrda_fleet/deadlock.py`, `agent._drp_*`, `claims._wins`. Tests: `core/tests/test_deadlock.py`.
+Source: `core/nrda_fleet/deadlock.py`, `agent._drp_*`, `claims._wins`. Tests: none — `core/tests/test_deadlock.py` was deleted with the suite.
 
 ### 16.1 Protocol steps
 
