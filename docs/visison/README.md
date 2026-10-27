@@ -30,17 +30,18 @@ In every case R1 **reports the obstacle** to the fleet so a person can remove it
 ## Quickstart
 
 ```bash
-python3 -m pytest                             # 180 tests
-python3 -m sim.aisle_sim                      # all 10 scenarios (normal, emergency, ORCA, cooperative)
-python3 -m sim.aisle_sim --scenario convoy_reverse --plot convoy.png
-python3 -m sim.aisle_sim --compare --stress   # baseline vs ORCA-DD vs ORCA-DD + reciprocal windows
+./nrda.sh bench --quick                   # the library at twenty robots, in the 2-D benchmark
 ```
 
 **In the fleet:** this library is layer L1/L2 of NRDA-FA. To see it in Gazebo with
 20 robots, use `./nrda.sh sim` from the repository root.
 
-It uses only the Python ≥ 3.10 standard library. `pytest` runs the tests and
-`matplotlib` is only needed for `--plot`.
+It uses only the Python ≥ 3.10 standard library.
+
+The two-lane `sim/aisle_sim.py` harness that once drove this library standalone has been
+removed, and so has the test suite. Visison is now exercised only through the fleet:
+`nrda_fleet` imports it in fourteen modules, and the 2-D benchmark (`./nrda.sh bench`)
+runs it at twenty robots. There is no unit-level cover for it in this tree.
 
 ## Using the planner directly
 
@@ -143,7 +144,5 @@ See [`MATH.md`](MATH.md) for the derivations and worked examples. In short:
 visison/   geometry, kinematics, intervals, reservation, planner, controller, adapters, reporting,
            emergency (collision risk, tracker), standoff (coordinator, chain reverse),
            arbiter (one command path), orca + motion_models (ORCA-DD), tracking
-sim/       aisle_sim.py: two-lane simulator, oriented-box collision check every step
-tests/     kinematics vs numerical integration, t* vs brute force, controller, scenarios
 docs/      MATH.md, plans/PLAN_A_ORCA.md
 ```

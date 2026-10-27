@@ -7,8 +7,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: {python-version: "3.12"}
-      - run: pip install numpy pyyaml pytest matplotlib
-      - run: cd core && python -m pytest -q
+      - run: pip install numpy pyyaml matplotlib
+      # core/tests was deleted; this is an import and lane-graph build smoke check, not a test suite
+      - run: cd core && python -c "from nrda_fleet.site import Site; from nrda_fleet.lane_graph import LaneGraph; LaneGraph.load_or_build(Site.load())"
   ros:
     runs-on: ubuntu-24.04
     container: ros:jazzy

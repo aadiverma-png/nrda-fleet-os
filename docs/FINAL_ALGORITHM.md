@@ -13,7 +13,7 @@ Two invariants hold everywhere:
   that can move it, so a peer or an operator sends directives, never actuation.
 
 Implementation: `core/nrda_fleet/` (integration) and `core/visison/` (planner, ORCA, risk,
-arbiter). Tests: `core/tests/`, 180 of them. Every algorithm with its published source and
+arbiter). There is no test suite: `core/tests/` was deleted. Every algorithm with its published source and
 mathematics: [`FINAL_AUDIT.md`](FINAL_AUDIT.md).
 
 ---
@@ -112,14 +112,11 @@ HAL                  RobotInterface: Gazebo (ROS topics) | 2-D simulator | real 
 5. **No remote actuation.** Leaders, peers and the web console send *directives*. Only the receiving robot's arbiter moves its motors.
 6. **Launch-level guarantee.** Nav2 and RMF are not in the workspace. `nrda_fleet_ros` checks at start-up that no other publisher exists on `/AMR_<i>/cmd_vel`.
 
-Tests covering these rules (`core/tests/test_nrda_fleet.py`, `core/tests/test_deadlock.py`):
-- `test_single_cmd_writer_operator_estop_overrides_everything` (2.1)
-- `test_safety_supervisor_only_lowers_commands`, `test_lidar_hard_stop_kept` (§5.1, §4.5)
-- `test_safe_point_rule_blocks_reallocation_while_docking` (2.3)
-- `test_directive_does_not_actuate_other_robots` (2.5)
-- `edge_agent_node._check_single_writer` at run time (2.6)
-- `test_classify_opposing_lanes_with_follower` (DRP D2 head-on classification with follower chains, 1.4)
-- `test_single_file_corridor_deadlock_reroutes_opposing` (DRP single-file standoff opposing reroute, 1.4)
+These rules were covered by `core/tests/test_nrda_fleet.py` and `core/tests/test_deadlock.py`
+(single-writer e-stop precedence 2.1, supervisor-lowers-only and lidar hard stop §5.1/§4.5,
+safe-point rule 2.3, directives never actuate 2.5, DRP head-on and single-file classification
+1.4). Those tests have been deleted; only `edge_agent_node._check_single_writer` (2.6) is still
+checked, at run time. The rules remain implemented and unverified.
 
 ---
 
@@ -143,7 +140,7 @@ Tests covering these rules (`core/tests/test_nrda_fleet.py`, `core/tests/test_de
 ## 4. Verification
 
 ```bash
-cd core && python3 -m pytest     # 180 unit and integration tests, ROS-free
+./nrda.sh test                   # the ROS node tests; the ROS-free core has no suite
 ./nrda.sh build                  # colcon: core, warehouse, messages, fleet runtime
 ./nrda.sh bench --quick          # scenario benchmark in the 2-D simulator
 ```

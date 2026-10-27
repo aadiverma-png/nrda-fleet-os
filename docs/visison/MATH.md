@@ -1,7 +1,7 @@
 # Visison — the mathematics
 
-All quantities are in SI units. The numbers in the worked examples are
-the defaults used by `sim/aisle_sim.py`, and the simulator reproduces them.
+All quantities are in SI units. The numbers in the worked examples are the
+library's own defaults (`EmergencyConfig`, `MotionLimits`, `Aisle`).
 
 ## Setting
 
@@ -135,8 +135,9 @@ t* = min { t ≥ t_arrive : t ∉ ⋃ F_{k,r} }
 Sort the intervals, merge them, and walk from `t_arrive`. That costs
 O(n log n) for `n` relevant reservations, and it is exact: no time-stepping
 and no iteration. It works for R2 in either direction and for any number of
-robots, and `tests/test_planner.py` checks it against a 10 ms brute-force scan
-on random tables.
+robots. It was checked against a 10 ms brute-force scan on random tables by
+`tests/test_planner.py`, since deleted along with the rest of the test suite; the
+claim is no longer verified anywhere in this tree.
 
 * A rolling candidate is accepted only if `t_now ∉ ⋃F`, which gives **BYPASS_NOW**.
 * Otherwise the stop-and-go candidate uses `t*`, which gives **WAIT_THEN_BYPASS**.
@@ -306,7 +307,9 @@ claim is made atomically, and the slower robot slows to half speed long enough
 to lose exactly δ (ramp loss `v/8a_dec + v/8a_acc`, the rest cruising at `v/2`).
 If any step fails, everything is rolled back. Robots of other fleets are never asked.
 
-**Results** (`python3 -m sim.aisle_sim --compare`; no collisions in any run):
+**Results**, measured with the two-lane `sim/aisle_sim.py` harness before it was
+removed (`--compare`; no collisions in any run). Kept as the record of why ORCA-DD
+and reciprocal windows are in the library; not reproducible from this tree:
 
 | scenario | baseline | + ORCA-DD | + ORCA-DD + windows |
 |---|---|---|---|

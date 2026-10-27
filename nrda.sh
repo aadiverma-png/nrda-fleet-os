@@ -50,7 +50,7 @@ case "$cmd" in
     exec ros2 launch nrda_fleet_ros fleet.launch.py "$@"
     ;;
   test)
-    (cd "$ROOT/core" && python3 -m pytest "$@")
+    # The ROS-free core (core/visison, core/nrda_fleet) has no test suite: core/tests was deleted.
     # The runtime package's own tests. They are named file by file on purpose: ROS 2's pytest plugins
     # take over directory collection in ros2_ws/src/nrda_fleet_ros, where pointing pytest at the test
     # directory silently collects nothing at all (verified: even a trivial test file is dropped).

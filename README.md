@@ -54,7 +54,7 @@ The browser console opens automatically.
 | `./nrda.sh sim sensor_profile:=fleet` | Gazebo GPU lidars instead of the CPU lidar model (runs at about half real time on a 4 GB GPU) |
 | `./nrda.sh sim gui:=false` | Headless Gazebo: RViz and the console only (~1.0x real time) |
 | `./nrda.sh sim sim_speed:=1.5` | Ask Gazebo for 1.5x real time (when CPU has headroom, e.g. with `gui:=false`) |
-| `./nrda.sh test` | 180 unit and integration tests (100% pass rate, ROS-free) |
+| `./nrda.sh test` | The ROS node tests (`nrda_fleet_ros`); the ROS-free core has no test suite |
 | `./nrda.sh bench --quick` | Scenario benchmark in the 2-D simulator, then the KPI report |
 | `./nrda.sh stop` | Stop every simulation process cleanly |
 
@@ -98,7 +98,6 @@ More detail: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), [`docs/INTERFACES.m
 |---|---|
 | `core/visison/` | Core algorithm: reservation-aware bypass planner, ORCA-DD, emergency and standoff logic, MotionArbiter |
 | `core/nrda_fleet/` | Integration layer, ROS-free: site model, lane graph, claims, scheduler, CBBA allocation, DRP deadlock resolution, edge agent, safety, 2-D simulator, metrics |
-| `core/tests/` | Test suite: **180 unit and integration tests** (100% pass rate) |
 | `ros2_ws/src/nrds_warehouse_sim/` | NRDS warehouse world (open roof, 2 m racking: `scripts/declutter_mesh.py`), AMR-01 model, 10 chargers, 15 sleeping bays, fleet roster, Gazebo/RViz launch |
 | `ros2_ws/src/nrda_msgs/` | Typed peer-bus interfaces (`RobotState`, `ClaimSet`, `Bid`, `Alert`, `Control`, etc.) |
 | `ros2_ws/src/nrda_fleet_ros/` | Edge-agent node, lidar emulator, safety monitor, RViz fleet view, web gateway and console (`web/`) |
